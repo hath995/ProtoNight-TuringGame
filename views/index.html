@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>
+Turing Test Game
+</title>
+<script src="../vendor/jquery-2.1.0.min.js" type="text/javascript"></script>
+</head>
+<body>
+<h1>Turing Test Game</h1>
+<div id="gamebox">
+  <div id="questionbox">
+    
+  </div>
+  <input type="button" value="Yes">
+  <input type="button" value="I Don't Know">
+  <input type="button" value="No">
+</div>
+<script type="text/javascript">
+var YES = "yes",
+    NO = "no",
+    IDK = "idk",
+    DC = "dc";
+var questions = [
+{text:"Are you left handed?", correct: DC},
+{text:"Is the background white?", correct: YES},
+{text:"Do you like puppies?", correct: YES}
+];
+var userAnswers = [];
+var currentQ = 0;
+var prevQ = null;
+function questionGenerator() {
+  return function() {
+    if(currentQ < questions.length) {
+      prevQ = currentQ;
+      return currentQ++;
+    }else{
+      return null;
+    }
+  }
+}
+var getQuestion = questionGenerator();
+$(document).ready(function(){
+  $("#questionbox").append("<div>"+questions[getQuestion()].text+"</div>");
+  $("input").on("click", function(elem) {
+    var answer = {resp: $(this).val(), question: questions[prevQ] };
+    userAnswers.push(answer);
+    $("#questionbox div").remove();
+    var questionText = questions[getQuestion()]
+    if(questionText) {
+      $("#questionbox").append("<div>"+questionText.text+"</div>");
+    }else{
+      $.ajax({
+        url:"/submit",
+        type: "POST",
+        data: {answers:userAnswers},
+        dataType: "JSON",
+        success: function(rdata) {
+          console.log(rdata);
+          questions = rdata.questions;
+          clear();
+          $("#questionbox").append("<div>"+questions[getQuestion()].text+"</div>");
+        },
+        error: function(err) {
+          console.log(err);
+        }
+      })
+    }
+  })
+
+});
+
+function clear() {
+  userAnswers = [];
+  currentQ = 0;
+  prevQ = null;
+  getQuestion = questionGenerator();
+}
+
+
+
+</script>
+
+</body>
+</html>
