@@ -4,7 +4,11 @@ var options = {
   views: {
     engines: { html: 'handlebars'},
     path: __dirname + '/views',
-    partialsPath: __dirname + '/views/partials'
+    partialsPath: __dirname + '/views/partials',
+    helpersPath: __dirname + '/views/helpers'
+  },
+  cors: {
+    origin: ["creativelive.com","localhost","dev.creativelive.com"]
   }
 };
 var server = new Hapi.Server('localhost',8000, options);
